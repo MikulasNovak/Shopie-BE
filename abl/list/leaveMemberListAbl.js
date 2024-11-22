@@ -1,9 +1,9 @@
 const listDao = require("../../dao/listDao.js");
 
-async function removeItemAbl(req, res) {
+async function leaveMemberListAbl(req, res) {
   try {
-    const item_id = req.params.item_id;
     const list_id = req.params.list_id; // Extract list_id from URL
+    const user_id = req.params.user_id;
     // console.log(list_id);
 
     if (!listDao.getList(list_id)) {
@@ -13,8 +13,7 @@ async function removeItemAbl(req, res) {
       });
       return;
     }
-
-    listDao.removeItem(list_id, item_id);
+    listDao.leaveMember(list_id, user_id);
 
     res.json({});
   } catch (e) {
@@ -22,4 +21,4 @@ async function removeItemAbl(req, res) {
   }
 }
 
-module.exports = removeItemAbl;
+module.exports = leaveMemberListAbl;

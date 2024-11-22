@@ -6,19 +6,18 @@ const listDao = require("../../dao/listDao.js");
 const schema = {
   type: "object",
   properties: {
-    list_id: { type: "string" },
+    item_id: { type: "string" },
     title: { type: "string" },
-    owner_id: { type: "integer" },
-    archived: { type: "boolean" },
+    resolved: { type: "boolean" },
   },
-  required: ["list_id"],
+  required: ["item_id"],
   additionalProperties: false,
 };
 
-async function updateListAbl(req, res) {
+async function updateItemAbl(req, res) {
   try {
-    let list = req.body;
-    list.list_id = req.params.list_id;
+    let item = req.body;
+    item.item_id = req.params.item_id;
     const list_id = req.params.list_id;
 
     if (!listDao.getList(list_id)) {
@@ -30,7 +29,7 @@ async function updateListAbl(req, res) {
       return;
     }
 
-    const valid = ajv.validate(schema, list);
+    const valid = ajv.validate(schema, item);
     if (!valid) {
       res.status(400).json({
         code: "dtoInIsNotValid",
@@ -40,8 +39,8 @@ async function updateListAbl(req, res) {
       return;
     }
 
-    const listUpdated = listDao.updateList(list);
-    if (!listUpdated) {
+    const itemUpdated = listDao.updateItem(list_id, item);
+    if (!itemUpdated) {
       res.status(404).json({
         code: "listNotFound",
         message: `list not found`,
@@ -49,10 +48,10 @@ async function updateListAbl(req, res) {
       return;
     }
 
-    res.json(listUpdated);
+    res.json(itemUpdated);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
 }
 
-module.exports = updateListAbl;
+module.exports = updateItemAbl;

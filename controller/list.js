@@ -10,7 +10,9 @@ const createItemAbl = require("../abl/list/createItemAbl");
 const removeItemAbl = require("../abl/list/removeItemAbl");
 const addMemberListAbl = require("../abl/list/addMemberListAbl");
 const kickMemberListAbl = require("../abl/list/kickMemberListAbl");
-
+const leaveMemberListAbl = require("../abl/list/leaveMemberListAbl");
+const resolveItemAbl = require("../abl/list/resolveItemAbl");
+const updateItemAbl = require("../abl/list/updateItemAbl");
 
 router.get("/list", (req, res) => {
   listAbl(req, res);
@@ -33,14 +35,23 @@ router.post("/:list_id/update", (req, res) => {
 router.post("/:list_id/item/create", (req, res) => {
   createItemAbl(req, res);
 });
-router.post("/:list_id/item/remove", (req, res) => {
+router.post("/:list_id/item/:item_id/resolve", (req, res) => {
+  resolveItemAbl(req, res);
+});
+router.delete("/:list_id/item/:item_id/remove", (req, res) => {
   removeItemAbl(req, res);
-})
-router.post("/:list_id/user/add", (req, res) => {
+});
+router.post("/:list_id/item/:item_id/update", (req, res) => {
+  updateItemAbl(req, res);
+});
+router.post("/:list_id/user/:user_id/add", (req, res) => {
   addMemberListAbl(req, res);
-})
-router.post("/:list_id/user/kick", (req, res) => {
+});
+router.post("/:list_id/user/:user_id/kick", (req, res) => {
   kickMemberListAbl(req, res);
-})
+});
+router.post("/:list_id/user/:user_id/leave", (req, res) => {
+  leaveMemberListAbl(req, res);
+});
 
 module.exports = router;
