@@ -15,7 +15,7 @@ const schema = {
   additionalProperties: false,
 };
 
-async function updateAbl(req, res) {
+async function updateListAbl(req, res) {
   try {
     let list = req.body;
 
@@ -29,7 +29,7 @@ async function updateAbl(req, res) {
       return;
     }
 
-    const listUpdated = listDao.update(list);
+    const listUpdated = listDao.updateList(list);
 
     if (!listUpdated) {
       res.status(404).json({
@@ -45,4 +45,4 @@ async function updateAbl(req, res) {
   }
 }
 
-module.exports = updateAbl;
+module.exports = updateListAbl;

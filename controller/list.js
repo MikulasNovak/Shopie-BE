@@ -1,28 +1,46 @@
 const express = require("express");
 const router = express.Router();
-const listAbl = require("../abl/list/listAbl");
-const createAbl = require("../abl/list/createAbl");
-const getAbl = require("../abl/list/getAbl");
-const removeAbl = require("../abl/list/removeAbl");
-const archiveAbl = require("../abl/list/archiveAbl");
-const updateAbl = require("../abl/list/updateAbl");
+const listAbl = require("../abl/list/listListAbl");
+const createAbl = require("../abl/list/createListAbl");
+const getAbl = require("../abl/list/getListAbl");
+const removeAbl = require("../abl/list/removeListAbl");
+const archiveAbl = require("../abl/list/archiveListAbl");
+const updateAbl = require("../abl/list/updateListAbl");
+const createItemAbl = require("../abl/list/createItemAbl");
+const removeItemAbl = require("../abl/list/removeItemAbl");
+const addMemberListAbl = require("../abl/list/addMemberListAbl");
+const kickMemberListAbl = require("../abl/list/kickMemberListAbl");
+
 
 router.get("/list", (req, res) => {
   listAbl(req, res);
 });
-router.get("/get", (req, res) => {
+router.get("/:list_id/get", (req, res) => {
   getAbl(req, res);
 });
 router.post("/create", (req, res) => {
   createAbl(req, res);
 });
-router.delete("/remove", (req, res) => {
+router.delete("/:list_id/remove", (req, res) => {
   removeAbl(req, res);
 });
-router.post("/archive", (req, res) => {
+router.post("/:list_id/archive", (req, res) => {
   archiveAbl(req, res);
 });
-router.post("/update", (req, res) => {
+router.post("/:list_id/update", (req, res) => {
   updateAbl(req, res);
 });
+router.post("/:list_id/item/create", (req, res) => {
+  createItemAbl(req, res);
+});
+router.post("/:list_id/item/remove", (req, res) => {
+  removeItemAbl(req, res);
+})
+router.post("/:list_id/user/add", (req, res) => {
+  addMemberListAbl(req, res);
+})
+router.post("/:list_id/user/kick", (req, res) => {
+  kickMemberListAbl(req, res);
+})
+
 module.exports = router;

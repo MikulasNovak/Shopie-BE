@@ -11,7 +11,7 @@ const schema = {
   additionalProperties: false,
 };
 
-async function getAbl(req, res) {
+async function getListAbl(req, res) {
   try {
     const reqParam = req.query?.id ? req.query : req.body;
 
@@ -25,7 +25,7 @@ async function getAbl(req, res) {
       return;
     }
 
-    const list = listDao.get(reqParam.id);
+    const list = listDao.getList(reqParam.id);
 
     if (!listDao.get(reqParam.id)) {
       res.status(404).json({
@@ -41,4 +41,4 @@ async function getAbl(req, res) {
   }
 }
 
-module.exports = getAbl;
+module.exports = getListAbl;

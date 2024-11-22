@@ -7,14 +7,14 @@ const userDao = require("../../dao/userDao.js");
 const schema = {
   type: "object",
   properties: {
-    owner_id: { type: "integer" },
+    owner_id: { type: "string" },
     title: { type: "string" },
   },
   required: ["owner_id", "title"],
   additionalProperties: false,
 };
 
-async function createAbl(req, res) {
+async function createListAbl(req, res) {
   try {
     let list = req.body;
 
@@ -28,20 +28,20 @@ async function createAbl(req, res) {
       return;
     }
 
-    /*
+
     if (!userDao.get(list.owner_id)) {
       res.status(400).json({
         code: "ownerNotFound",
         message: "Owner does not exist",
       });
       return;
-    }*/
+    }
 
-    list = listDao.create(list);
+    list = listDao.createList(list);
     res.json(list);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
 }
 
-module.exports = createAbl;
+module.exports = createListAbl;

@@ -3,8 +3,10 @@ const path = require("path");
 const crypto = require("crypto");
 
 const listFolderPath = path.join(__dirname, "../storage", "list");
+const userDao = require("./userDao.js");
 
-function get(list_id) {
+
+function getList(list_id) {
   try {
     const listFile = path.join(listFolderPath, `${list_id}.json`); //list FILE
     const listData = fs.readFileSync(listFile, "utf8");
@@ -15,7 +17,7 @@ function get(list_id) {
   }
 }
 
-function create(list) {
+function createList(list) {
   try {
     list.id = crypto.randomBytes(16).toString("hex"); // ID GENERATION
     list.memberList = [];
@@ -30,13 +32,13 @@ function create(list) {
   }
 }
 
-function update(list) {
+function updateList(list) {
   try {
-    const listCurrent = get(list.id);
+    const listCurrent = getList(list.id);
     if (!listCurrent) {
       return null;
     }
-    const listNew = { ...listCurrent, ...list }; 
+    const listNew = { ...listCurrent, ...list };
     const filePath = path.join(listFolderPath, `${list.id}.json`);
     const fileData = JSON.stringify(listNew);
     fs.writeFileSync(filePath, fileData, "utf8");
@@ -46,9 +48,9 @@ function update(list) {
   }
 }
 
-function archive(list) {
+function archiveList(list_id) {
   try {
-    const listCurrent = get(list.id);
+    const listCurrent = getList(list_id);
     if (!listCurrent) {
       return null;
     }
@@ -62,7 +64,7 @@ function archive(list) {
   }
 }
 
-function remove(list_id) {
+function removeList(list_id) {
   try {
     const filePath = path.join(listFolderPath, `${list_id}.json`);
     fs.unlinkSync(filePath);
@@ -76,7 +78,7 @@ function remove(list_id) {
   }
 }
 
-function list() {
+function listList() {
   try {
     const files = fs.readdirSync(listFolderPath);
     const listList = files.map((file) => {
@@ -88,12 +90,106 @@ function list() {
     throw { code: "failedToListLists", message: error.message };
   }
 }
+function createItem(list_id, item) {
+  try {
+    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
+    if (!fs.existsSync(listFilePath)) {
+      throw { code: "listNotFound", message: `List with ID ${list_id} not found.` };
+    }
+
+    const listData = fs.readFileSync(listFilePath, "utf8");
+    const list = JSON.parse(listData);
+    item.id = crypto.randomBytes(16).toString("hex"); // Generate unique ID
+    item.resolved = false;
+    list.itemList.push(item);
+    const updatedListData = JSON.stringify(list, null, 2); // Pretty print for readability
+    fs.writeFileSync(listFilePath, updatedListData, "utf8");
+
+    return item;
+  } catch (error) {
+    throw { code: "failedToAddItemToList", message: error.message };
+  }
+}
+function removeItem(list_id, item_id) {
+  try {
+    const list = getList(list_id);
+    if (!list) {
+      throw { code: "listNotFound", message: `List with ID ${list_id} not found.` };
+    }
+    const itemIndex = list.itemList.findIndex(item => item.id === item_id);
+    if (itemIndex === -1) {
+      throw { code: "itemNotFound", message: `Item with ID ${item_id} not found in the list.` };
+    }
+    list.itemList.splice(itemIndex, 1);
+    const updatedListData = JSON.stringify(list, null, 2);
+    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
+    fs.writeFileSync(listFilePath, updatedListData, "utf8");
+
+    return { success: true, message: `Item with ID ${item_id} removed from the list.` };
+  } catch (error) {
+    throw { code: "failedToRemoveItemFromList", message: error.message };
+  }
+}
+
+function addMember(list_id, user_id) {
+  try {
+    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
+    if (!fs.existsSync(listFilePath)) {
+      throw { code: "listNotFound", message: `List with ID ${list_id} not found.` };
+    }
+
+    const listData = fs.readFileSync(listFilePath, "utf8");
+    const list = JSON.parse(listData);
+    const user = userDao.get(user_id);
+    //console.log(user);
+    list.memberList.push(user);
+    const updatedListData = JSON.stringify(list, null, 2);
+    fs.writeFileSync(listFilePath, updatedListData, "utf8");
+
+    return user;
+  } catch (error) {
+    throw { code: "failedToAddUserToList", message: error.message };
+  }
+}
+function kickMember(list_id, user_id, owner_id) {
+  try {
+    const list = getList(list_id);
+    if (!list) {
+      throw { code: "listNotFound", message: `List with ID ${list_id} not found.` };
+    }
+    const userIndex = list.memberList.findIndex(user => user.id === user_id);
+    if (userIndex === -1) {
+      throw { code: "userNotFound", message: `User with ID ${user_id} not found in the list.` };
+    }
+    if (list.owner_id !== owner_id) {
+      throw { code: "userNotOwner", message: `User with ID ${owner_id} is not the owner of the list.` };
+    }
+    list.memberList.splice(userIndex, 1);
+    const updatedListData = JSON.stringify(list, null, 2);
+    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
+    fs.writeFileSync(listFilePath, updatedListData, "utf8");
+    return { success: true, message: `User with ID ${user_id} removed from the list.` };
+  } catch (error) {
+    console.error("Error in kickMember:", error);
+    throw { code: "failedToRemoveMemberFromList", message: error.message };
+  }
+}
+
+
+function leaveMember() {
+
+}
 
 module.exports = {
-  get,
-  create,
-  update,
-  remove,
-  list,
-  archive,
+  getList,
+  createList,
+  updateList,
+  removeList,
+  listList,
+  archiveList,
+  leaveMember,
+  kickMember,
+  createItem,
+  removeItem,
+  addMember
 };

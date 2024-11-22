@@ -8,7 +8,7 @@ const schema = {
   properties: {
     username: { type: "string" },
     email: { type: "string" },
-    password:  {type: "string"}
+    password: { type: "string" }
   },
   required: ["username", "email"],
   additionalProperties: false,
@@ -27,15 +27,6 @@ async function registerAbl(req, res) {
       });
       return;
     }
-
-    /*
-    if (!userDao.get(user.owner_id)) {
-      res.status(400).json({
-        code: "ownerNotFound",
-        message: "Owner does not exist",
-      });
-      return;
-    }*/
 
     user = await userDao.register(user);
     res.json(user);

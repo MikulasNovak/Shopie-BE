@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 8000; // Set the port (defaults to 3000)
 
 app.use("/list", listController);
 app.use("/user", userController);
+app.use("/item", itemController);
 
 // Start the server and listen for requests
 

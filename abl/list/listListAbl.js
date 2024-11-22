@@ -1,12 +1,12 @@
 const listDao = require("../../dao/listDao.js");
 
-async function listAbl(req, res) {
+async function listListAbl(req, res) {
   try {
-    const listList = listDao.list();
+    const listList = listDao.listList();
     res.json(listList);
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
 }
 
-module.exports = listAbl;
+module.exports = listListAbl;

@@ -1,21 +1,26 @@
 const Ajv = require("ajv");
 const ajv = new Ajv();
 const listDao = require("../../dao/listDao.js");
+const userDao = require("../../dao/userDao.js");
 
 const schema = {
   type: "object",
   properties: {
-    id: { type: "string" },
+    owner_id: { type: "string" },
+
   },
-  required: ["id"],
+  required: ["owner_id"],
   additionalProperties: false,
 };
 
-async function removeAbl(req, res) {
-  try {
-    const reqParam = req.query?.id ? req.query : req.body;
 
-    const valid = ajv.validate(schema, reqParam);
+
+async function removeListAbl(req, res) {
+  try {
+    const list_id = req.params.list_id; // Extract list_id from URL
+
+
+    const valid = ajv.validate(schema, req.body);
     if (!valid) {
       res.status(400).json({
         code: "dtoInIsNotValid",
@@ -24,16 +29,24 @@ async function removeAbl(req, res) {
       });
       return;
     }
+    const list = listDao.getList(list_id);
 
-    if (!listDao.get(reqParam.id)) {
+    if (!list) {
       res.status(400).json({
         code: "dtoInIsNotValid",
         message: "list does not exist",
       });
       return;
     }
+    if (list.owner_id !== req.body.owner_id) {
+      res.status(400).json({
+        code: "userIsNotOwner",
+        message: "user is not owner",
+      });
+      return;
+    }
 
-    listDao.remove(reqParam.id);
+    listDao.removeList(list_id);
 
     res.json({});
   } catch (e) {
@@ -41,4 +54,4 @@ async function removeAbl(req, res) {
   }
 }
 
-module.exports = removeAbl;
+module.exports = removeListAbl;

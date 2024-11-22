@@ -1,25 +1,25 @@
 const Ajv = require("ajv");
 const ajv = new Ajv();
-
-const itemDao = require("../../dao/itemDao.js");
 const listDao = require("../../dao/listDao.js");
 
 const schema = {
     type: "object",
     properties: {
-        title: { type: "string" },
-        list_id: { type: "string" },
+        id: { type: "string" },
     },
-    required: ["list_id", "title"],
+    required: ["id"],
     additionalProperties: false,
 };
 
-async function createAbl(req, res) {
+async function removeItemAbl(req, res) {
     try {
-        let item = req.body.item;
-        let list = req.body.list_id
+        const reqParam = req.query?.id ? req.query : req.body;
 
-        const valid = ajv.validate(schema, { ...item, list_id: req.body.list_id }); if (!valid) {
+        const list_id = req.params.list_id; // Extract list_id from URL
+        // console.log(list_id);
+
+        const valid = ajv.validate(schema, reqParam);
+        if (!valid) {
             res.status(400).json({
                 code: "dtoInIsNotValid",
                 message: "dtoIn is not valid",
@@ -28,20 +28,20 @@ async function createAbl(req, res) {
             return;
         }
 
-
-        if (!listDao.get(list)) {
+        if (!listDao.getList(list_id)) {
             res.status(400).json({
-                code: "listNotFound",
-                message: "List does not exist",
+                code: "listDoesNotExist",
+                message: "list does not exist",
             });
             return;
         }
 
-        item = itemDao.create(list, item);
-        res.json(item);
+        listDao.removeItem(list_id, reqParam.id);
+
+        res.json({});
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
 }
 
-module.exports = createAbl;
+module.exports = removeItemAbl;
