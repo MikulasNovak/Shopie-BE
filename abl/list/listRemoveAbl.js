@@ -7,18 +7,14 @@ const schema = {
   type: "object",
   properties: {
     owner_id: { type: "string" },
-
   },
   required: ["owner_id"],
   additionalProperties: false,
 };
 
-
-
 async function removeListAbl(req, res) {
   try {
     const list_id = req.params.list_id; // Extract list_id from URL
-
 
     const valid = ajv.validate(schema, req.body);
     if (!valid) {
@@ -48,7 +44,10 @@ async function removeListAbl(req, res) {
 
     listDao.removeList(list_id);
 
-    res.json({});
+    res.json({
+      code: "listRemoved",
+      message: `List with ID ${list_id} has been successfully removed.`,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

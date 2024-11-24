@@ -1,7 +1,7 @@
 const express = require("express"); // Import Express
 const app = express(); // Initialize the Express application
-const listController = require("./controller/list");
-const userController = require("./controller/user");
+const listController = require("./controller/listController");
+const userController = require("./controller/userController");
 
 app.use(express.json());
 const PORT = process.env.PORT || 8000; // Set the port (defaults to 3000)

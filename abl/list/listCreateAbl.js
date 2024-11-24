@@ -7,7 +7,7 @@ const userDao = require("../../dao/userDao.js");
 const schema = {
   type: "object",
   properties: {
-    owner_id: { type: "string" },
+    owner_id: { type: "string" }, //Simulates logged user
     title: { type: "string" },
   },
   required: ["owner_id", "title"],
@@ -27,7 +27,6 @@ async function createListAbl(req, res) {
       });
       return;
     }
-
 
     if (!userDao.get(list.owner_id)) {
       res.status(400).json({

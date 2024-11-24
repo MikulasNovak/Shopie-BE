@@ -15,7 +15,10 @@ async function leaveMemberListAbl(req, res) {
     }
     listDao.leaveMember(list_id, user_id);
 
-    res.json({});
+    res.json({
+      code: "userLeft",
+      message: `User with ID ${user_id} has successfully left.`,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

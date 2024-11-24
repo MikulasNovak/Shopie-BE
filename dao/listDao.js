@@ -33,15 +33,16 @@ function createList(list) {
 
 function updateList(list) {
   try {
-    const listCurrent = getList(list.list_id);
+    const listCurrent = getList(list.id);
     if (!listCurrent) {
       return null;
     }
-    const listNew = { ...listCurrent, ...list };
-    const filePath = path.join(listFolderPath, `${list.list_id}.json`);
-    const fileData = JSON.stringify(listNew);
+
+    const listUpdated = { ...listCurrent, ...list };
+    const filePath = path.join(listFolderPath, `${list.id}.json`);
+    const fileData = JSON.stringify(listUpdated);
     fs.writeFileSync(filePath, fileData, "utf8");
-    return listNew;
+    return listUpdated;
   } catch (error) {
     throw { code: "failedToUpdateList", message: error.message };
   }
@@ -49,15 +50,15 @@ function updateList(list) {
 
 function archiveList(list_id) {
   try {
-    const listCurrent = getList(list_id);
-    if (!listCurrent) {
+    const list = getList(list_id);
+    if (!list) {
       return null;
     }
-    listCurrent.archived = true;
-    const filePath = path.join(listFolderPath, `${listCurrent.id}.json`);
-    const fileData = JSON.stringify(listCurrent);
+    list.archived = true;
+    const filePath = path.join(listFolderPath, `${list.id}.json`);
+    const fileData = JSON.stringify(list);
     fs.writeFileSync(filePath, fileData, "utf8");
-    return listCurrent;
+    return list;
   } catch (error) {
     throw { code: "failedToArchiveList", message: error.message };
   }
@@ -66,13 +67,12 @@ function archiveList(list_id) {
 function removeList(list_id) {
   try {
     const filePath = path.join(listFolderPath, `${list_id}.json`);
-    fs.unlinkSync(filePath);
-
-    return {};
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      return {};
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath); // Delete the file
+      return true; // Indicate successful deletion
     }
+    return null; // List not found
+  } catch (error) {
     throw { code: "failedToRemoveList", message: error.message };
   }
 }
@@ -80,38 +80,37 @@ function removeList(list_id) {
 function listList() {
   try {
     const files = fs.readdirSync(listFolderPath);
-    const listList = files.map((file) => {
+    return files.map((file) => {
       const fileData = fs.readFileSync(path.join(listFolderPath, file), "utf8");
-      return JSON.parse(fileData);
+      return JSON.parse(fileData); // Parse and return each list
     });
-    return listList;
   } catch (error) {
     throw { code: "failedToListLists", message: error.message };
   }
 }
+
 function createItem(list_id, item) {
   try {
-    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
-    if (!fs.existsSync(listFilePath)) {
+    const list = getList(list_id);
+    if (!list) {
       throw {
         code: "listNotFound",
         message: `List with ID ${list_id} not found.`,
       };
     }
 
-    const listData = fs.readFileSync(listFilePath, "utf8");
-    const list = JSON.parse(listData);
     item.id = crypto.randomBytes(16).toString("hex"); // Generate unique ID
     item.resolved = false;
     list.itemList.push(item);
-    const updatedListData = JSON.stringify(list, null, 2); // Pretty print for readability
-    fs.writeFileSync(listFilePath, updatedListData, "utf8");
 
-    return item;
+    const filePath = path.join(listFolderPath, `${list_id}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf8");
+    return item; // Return the created item
   } catch (error) {
     throw { code: "failedToAddItemToList", message: error.message };
   }
 }
+
 function removeItem(list_id, item_id) {
   try {
     const list = getList(list_id);
@@ -121,6 +120,7 @@ function removeItem(list_id, item_id) {
         message: `List with ID ${list_id} not found.`,
       };
     }
+
     const itemIndex = list.itemList.findIndex((item) => item.id === item_id);
     if (itemIndex === -1) {
       throw {
@@ -128,12 +128,11 @@ function removeItem(list_id, item_id) {
         message: `Item with ID ${item_id} not found in the list.`,
       };
     }
-    list.itemList.splice(itemIndex, 1);
-    const updatedListData = JSON.stringify(list, null, 2);
-    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
-    fs.writeFileSync(listFilePath, updatedListData, "utf8");
 
-    return {};
+    list.itemList.splice(itemIndex, 1); // Remove the item
+    const filePath = path.join(listFolderPath, `${list_id}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf8");
+    return true; // Indicate successful removal
   } catch (error) {
     throw { code: "failedToRemoveItemFromList", message: error.message };
   }
@@ -188,7 +187,8 @@ function kickMember(list_id, user_id, owner_id) {
     const updatedListData = JSON.stringify(list, null, 2);
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
-    return {};
+    const fileData = JSON.stringify(list);
+    return fileData;
   } catch (error) {
     console.error("Error in kickMember:", error);
     throw { code: "failedToRemoveMemberFromList", message: error.message };
@@ -238,11 +238,16 @@ function resolveItem(list_id, item_id) {
         message: `Item with ID ${item_id} not found in the list.`,
       };
     }
-    list.itemList[itemIndex].resolved = true;
-    const updatedListData = JSON.stringify(list, null, 2);
-    const listFilePath = path.join(listFolderPath, `${list_id}.json`);
-    fs.writeFileSync(listFilePath, updatedListData, "utf8");
-    return list.itemList[itemIndex];
+    const updatedItem = {
+      id: list.itemList[itemIndex].id,
+      title: list.itemList[itemIndex].title,
+      resolved: true,
+    };
+    list.itemList[itemIndex] = updatedItem;
+    const filePath = path.join(listFolderPath, `${list_id}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(list, null, 2), "utf8");
+
+    return updatedItem;
   } catch (error) {
     throw { code: "failedToMarkItemAsResolved", message: error.message };
   }
@@ -295,13 +300,17 @@ function updateItem(list_id, item) {
 function listItems(list_id) {
   try {
     const list = getList(list_id);
-    const listItems = list.itemList;
-    return listItems;
+    if (!list) {
+      throw {
+        code: "listNotFound",
+        message: `List with ID ${list_id} not found.`,
+      };
+    }
+    return list.itemList; // Return all items in the list
   } catch (error) {
-    throw { code: "failedToListLists", message: error.message };
+    throw { code: "failedToListItems", message: error.message };
   }
 }
-
 module.exports = {
   getList,
   createList,

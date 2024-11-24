@@ -6,19 +6,20 @@ const listDao = require("../../dao/listDao.js");
 const schema = {
   type: "object",
   properties: {
-    list_id: { type: "string" },
+    id: { type: "string" },
     title: { type: "string" },
     owner_id: { type: "integer" },
     archived: { type: "boolean" },
   },
-  required: ["list_id"],
+  required: ["id"],
   additionalProperties: false,
 };
 
 async function updateListAbl(req, res) {
   try {
     let list = req.body;
-    list.list_id = req.params.list_id;
+    list.id = req.params.list_id;
+
     const list_id = req.params.list_id;
 
     if (!listDao.getList(list_id)) {
@@ -41,6 +42,7 @@ async function updateListAbl(req, res) {
     }
 
     const listUpdated = listDao.updateList(list);
+    console.log(listUpdated);
     if (!listUpdated) {
       res.status(404).json({
         code: "listNotFound",

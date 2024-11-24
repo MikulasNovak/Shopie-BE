@@ -16,7 +16,10 @@ async function removeItemAbl(req, res) {
 
     listDao.removeItem(list_id, item_id);
 
-    res.json({});
+    res.json({
+      code: "itemRemoved",
+      message: `Item with ID ${item_id} has been successfully removed.`,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }

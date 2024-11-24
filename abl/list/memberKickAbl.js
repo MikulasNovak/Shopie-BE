@@ -37,7 +37,10 @@ async function kickMemberListAbl(req, res) {
     }
     listDao.kickMember(list_id, user_id, reqParam.log_user);
 
-    res.json({});
+    res.json({
+      code: "userKicked",
+      message: `User with ID ${user_id} has been successfully kicked.`,
+    });
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
