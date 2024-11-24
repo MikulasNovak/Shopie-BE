@@ -133,10 +133,7 @@ function removeItem(list_id, item_id) {
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
 
-    return {
-      success: true,
-      message: `Item with ID ${item_id} removed from the list.`,
-    };
+    return {};
   } catch (error) {
     throw { code: "failedToRemoveItemFromList", message: error.message };
   }
@@ -191,10 +188,7 @@ function kickMember(list_id, user_id, owner_id) {
     const updatedListData = JSON.stringify(list, null, 2);
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
-    return {
-      success: true,
-      message: `User with ID ${user_id} removed from the list.`,
-    };
+    return {};
   } catch (error) {
     console.error("Error in kickMember:", error);
     throw { code: "failedToRemoveMemberFromList", message: error.message };
@@ -222,10 +216,7 @@ function leaveMember(list_id, user_id) {
     const updatedListData = JSON.stringify(list, null, 2);
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
-    return {
-      success: true,
-      message: `User with ID ${user_id} left the list.`,
-    };
+    return {};
   } catch (error) {
     console.error("Error in kickMember:", error);
     throw { code: "failedToLeaveMemberFromList", message: error.message };
@@ -251,10 +242,7 @@ function resolveItem(list_id, item_id) {
     const updatedListData = JSON.stringify(list, null, 2);
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
-    return {
-      success: true,
-      message: `Item with ID ${item_id} has been marked as resolved.`,
-    };
+    return list.itemList[itemIndex];
   } catch (error) {
     throw { code: "failedToMarkItemAsResolved", message: error.message };
   }
@@ -298,13 +286,19 @@ function updateItem(list_id, item) {
     const listFilePath = path.join(listFolderPath, `${list_id}.json`);
     fs.writeFileSync(listFilePath, updatedListData, "utf8");
 
-    return {
-      success: true,
-      message: `Item with ID ${item.id} has been updated successfully.`,
-    };
+    return list.itemList[itemIndex];
   } catch (error) {
     console.error("Error updating item:", error);
     throw { code: "failedToUpdateItem", message: error.message };
+  }
+}
+function listItems(list_id) {
+  try {
+    const list = getList(list_id);
+    const listItems = list.itemList;
+    return listItems;
+  } catch (error) {
+    throw { code: "failedToListLists", message: error.message };
   }
 }
 
@@ -322,4 +316,5 @@ module.exports = {
   addMember,
   resolveItem,
   updateItem,
+  listItems,
 };

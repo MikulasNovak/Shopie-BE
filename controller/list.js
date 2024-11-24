@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const listAbl = require("../abl/list/listListAbl");
-const createAbl = require("../abl/list/createListAbl");
-const getAbl = require("../abl/list/getListAbl");
-const removeAbl = require("../abl/list/removeListAbl");
-const archiveAbl = require("../abl/list/archiveListAbl");
-const updateAbl = require("../abl/list/updateListAbl");
+const listListAbl = require("../abl/list/listListAbl");
+const createListAbl = require("../abl/list/createListAbl");
+const getListAbl = require("../abl/list/getListAbl");
+const removeListAbl = require("../abl/list/removeListAbl");
+const archiveListAbl = require("../abl/list/archiveListAbl");
+const updateListAbl = require("../abl/list/updateListAbl");
 const createItemAbl = require("../abl/list/createItemAbl");
 const removeItemAbl = require("../abl/list/removeItemAbl");
 const addMemberListAbl = require("../abl/list/addMemberListAbl");
@@ -13,24 +13,25 @@ const kickMemberListAbl = require("../abl/list/kickMemberListAbl");
 const leaveMemberListAbl = require("../abl/list/leaveMemberListAbl");
 const resolveItemAbl = require("../abl/list/resolveItemAbl");
 const updateItemAbl = require("../abl/list/updateItemAbl");
+const listItemsByListAbl = require("../abl/list/listItemsByListAbl");
 
 router.get("/list", (req, res) => {
-  listAbl(req, res);
+  listListAbl(req, res);
 });
 router.get("/:list_id/get", (req, res) => {
-  getAbl(req, res);
+  getListAbl(req, res);
 });
 router.post("/create", (req, res) => {
-  createAbl(req, res);
+  createListAbl(req, res);
 });
 router.delete("/:list_id/remove", (req, res) => {
-  removeAbl(req, res);
+  removeListAbl(req, res);
 });
 router.post("/:list_id/archive", (req, res) => {
-  archiveAbl(req, res);
+  archiveListAbl(req, res);
 });
 router.post("/:list_id/update", (req, res) => {
-  updateAbl(req, res);
+  updateListAbl(req, res);
 });
 router.post("/:list_id/item/create", (req, res) => {
   createItemAbl(req, res);
@@ -52,6 +53,9 @@ router.post("/:list_id/user/:user_id/kick", (req, res) => {
 });
 router.post("/:list_id/user/:user_id/leave", (req, res) => {
   leaveMemberListAbl(req, res);
+});
+router.get("/:list_id/item/list", (req, res) => {
+  listItemsByListAbl(req, res);
 });
 
 module.exports = router;
