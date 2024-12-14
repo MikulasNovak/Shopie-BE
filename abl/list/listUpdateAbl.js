@@ -20,23 +20,24 @@ async function updateListAbl(req, res) {
     let list = req.body;
     list.id = req.params.list_id;
 
-    const list_id = req.params.list_id;
-
-    if (!listDao.getList(list_id)) {
-      res.status(400).json({
-        code: "listDoesNotExist",
-        message: "list does not exist",
-        validationError: ajv.errors,
-      });
-      return;
-    }
-
+    // Validate the input first
     const valid = ajv.validate(schema, list);
     if (!valid) {
       res.status(400).json({
         code: "dtoInIsNotValid",
         message: "dtoIn is not valid",
         validationError: ajv.errors,
+      });
+      return;
+    }
+
+    const list_id = req.params.list_id;
+
+    // Check if the list exists
+    if (!listDao.getList(list_id)) {
+      res.status(400).json({
+        code: "listDoesNotExist",
+        message: "list does not exist",
       });
       return;
     }

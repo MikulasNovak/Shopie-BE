@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const bcrypt = require("bcrypt"); // Import bcrypt for password hashing
+const bcrypt = require("bcryptjs"); // Import bcrypt for password hashing
 
 const userFolderPath = path.join(__dirname, "../storage", "user");
 
